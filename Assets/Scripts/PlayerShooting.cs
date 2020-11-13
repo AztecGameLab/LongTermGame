@@ -7,7 +7,7 @@ public class PlayerShooting : MonoBehaviour
 {
     
     public GameObject ArrowPrefab;
-    public GameObject ShotPowerFill;
+    public Image ShotPowerFill;
     
     public float minForce = 0f;
     public float maxForce = 50f; 
@@ -41,10 +41,9 @@ public class PlayerShooting : MonoBehaviour
             timer = 0;
             shootingStrength = minForce;
         }
-
+        
+        ShotPowerFill.fillAmount = timer / timeToGetToMaxForce;
         shootingStrength = Mathf.Lerp(minForce, maxForce, timer / timeToGetToMaxForce);
-        ShotPowerFill.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 300 * (timer / timeToGetToMaxForce));
-        //Debug.Log(shootingStrength);
 
     }
 }
