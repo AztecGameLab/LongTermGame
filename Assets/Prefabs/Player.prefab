@@ -493,6 +493,7 @@ MonoBehaviour:
   rotateVerticleSpeed: 5
   rotateHorizontalSpeed: 5
   jumpSpeed: 6
+  jumpFrames: 15
   body: {fileID: -3999755900801018967}
   camera: {fileID: 3438913974619587666}
 --- !u!114 &4984713569114710062

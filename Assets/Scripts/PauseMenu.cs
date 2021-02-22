@@ -12,16 +12,17 @@ public class PauseMenu : MonoBehaviour
 
     [SerializeField] private AudioMixerSnapshot pausedSnapshot = default;
     [SerializeField] private AudioMixerSnapshot unpausedSnapshot = default;
-    
+
     private SoundInstance _menuWhoosh;
     private SoundInstance _menuClick;
     private SoundInstance _menuHit;
     private AudioManager _audioManager;
-    
+
     private const float ClickFreq = 0.15f;
     private ReloadScene _reloadScene;
     private float _timeSinceClick = 0f;
     private bool _paused = false;
+    private bool wasShooting;
 
     private void Start()
     {
@@ -29,50 +30,57 @@ public class PauseMenu : MonoBehaviour
         _menuHit = menuHit.GenerateInstance();
         _menuClick = menuClick.GenerateInstance();
         _audioManager = AudioManager.Instance();
-        
+
         _reloadScene = FindObjectOfType<ReloadScene>();
         Time.timeScale = 1;
     }
 
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Escape)) Pause();
+        if (Input.GetKeyDown(KeyCode.Escape)) Pause();
         _timeSinceClick += Time.unscaledDeltaTime;
     }
 
-    public void Pause() 
+    private void Resume()
     {
         _audioManager.PlaySound(_menuWhoosh);
+        unpausedSnapshot.TransitionTo(0.01f);
+        PlayerManager.instance.stopShooting = wasShooting;
+    }
+
+    public void Pause()
+    {
 
         if (_paused)
         {
-            unpausedSnapshot.TransitionTo(0.01f);
+            Resume();
         }
         else
         {
+            _audioManager.PlaySound(_menuWhoosh);
             pausedSnapshot.TransitionTo(0.01f);
+            wasShooting = PlayerManager.instance.stopShooting;
+            PlayerManager.instance.stopShooting = true;
         }
-        
+
         _paused = !_paused;
         Cursor.lockState = (_paused ? CursorLockMode.None : CursorLockMode.Locked);
         Time.timeScale = 1 * (_paused ? 0 : 1);
         pauseGUI.SetActive(_paused);
     }
 
-    public void Restart() 
+    public void Restart()
     {
-        _audioManager.PlaySound(_menuWhoosh);
         Time.timeScale = 1;
-        unpausedSnapshot.TransitionTo(0.01f);
+        Resume();
         _reloadScene.ReloadTheScene();
     }
 
     public void Quit()
     {
-        _audioManager.PlaySound(_menuWhoosh);
         _audioManager.StopSound(MusicTrigger._currentPlaying);
         MusicTrigger._currentPlaying = null;
-        unpausedSnapshot.TransitionTo(0.01f);
+        Resume();
         SceneManager.LoadScene("MainMenu");
     }
 
@@ -84,7 +92,7 @@ public class PauseMenu : MonoBehaviour
             _timeSinceClick = 0f;
         }
     }
-    
+
     public void PlayHoverSound()
     {
         _audioManager.PlaySound(_menuHit);
